@@ -34,7 +34,6 @@
     <script>
         let turn = 'O';
         let canClick = true;
-        let count = 0;
         const rows = [];
         const $table = document.createElement('table');
         const $result = document.createElement('div');
@@ -75,6 +74,7 @@
             const cells = [];
             for (let j = 0; j < 3; j++) { //만드는 각 칸마다 실행해줄 것들.
                 const $td = document.createElement('td');
+                $td.id = '0';
                 cells.push($td);
                 $td.addEventListener("click", (event) => { // 클릭할 때 마다 실행되는 검증절차.
                     if (!canClick || (event.target.className).includes('clicked')) { // 이미 클릭된 칸이면 실행멈추기.
@@ -83,6 +83,7 @@
                     canClick = false;
                     // 클릭되었다는 클래스를 달아주고, 자신의 턴을 텍스트로 나타내기.
                     event.target.classList.add('clicked');
+                    event.target.id = '1';
                     event.target.textContent = turn;
                     // 승부 체크.
                     if (checkWinner(event.target)) {
@@ -108,23 +109,45 @@
             rows.push(cells);
         };
 
-        const takeComputerTurn = () => { // 클릭되지 않은 배열에서 무작위로 X 턴 채우기.
+        const takeComputerTurn = () => {
+            const rowSums = [];
             canClick = true;
             const flatRows = rows.flat();
             let unClicked = flatRows.filter((cell) => !cell.classList.contains('clicked'));
             let computerPick = unClicked[Math.floor(unClicked.length * Math.random())];
-            computerPick.textContent = turn;
-            computerPick.classList.add('clicked');
-            // 위험방지, 승리잡기.
-        // 승부체크. 
-        if (checkWinner(computerPick)) {
-            $result.textContent = `${turn} 승리 !!`;
-            replay();
-            return;
+            // 공격, 방어.
+            for (let i = 0; i < 3; i++) { //가로줄 방어
+                let sum = 0;
+                let rowIndex = rows[i];
+                for (let j = 0; j < 3; j++) {
+                    sum += parseInt(rowIndex[j].id);
+                };
+                rowSums.push(sum);
+            };
+            attackOrDipense();
+            function attackOrDipense() {
+                if (rowSums.includes(2)) {
+                    const forSave = (rows[rowSums.indexOf(2)]).find((td) => td.id === '0');
+                    forSave.textContent = turn;
+                    forSave.id = '3';
+                    forSave.classList.add('clicked');
+                    console.log(forSave)
+                } else { // 클릭되지 않은 배열에서 무작위로 X 턴 채우기.
+                    computerPick.textContent = turn;
+                    computerPick.classList.add('clicked');
+                    computerPick.id = '3';
+                };
+            };
+            // 승부체크. 
+            if (checkWinner(computerPick)) {
+                $result.textContent = `${turn} 승리 !!`;
+                replay();
+                return;
+            };
+            // 턴 넘기기
+            turn = 'O';
         };
-        // 턴 넘기기
-        turn = 'O';
-        };
+
         // 승부가 난 후 다시하기.
         const replay = () => { //다시하기 버튼 만들기
             if ($result.textContent) {
@@ -141,7 +164,7 @@
                 element.textContent = '';
                 element.className = '';
             });
-        })
+        });
         document.body.append($table);
         document.body.append($result);
     </script>
