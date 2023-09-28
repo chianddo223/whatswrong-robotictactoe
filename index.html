@@ -10,15 +10,22 @@
         }
 
         td {
-            border: 1vw solid black;
+            border: 0.7vw solid black;
             width: 15vw;
             height: 15vh;
             text-align: center;
-            font-size: 5em;
+            font-size: 6em;
         }
 
         div {
             font-size: 5em;
+        }
+
+        button {
+            margin-top: 2%;
+            width: 30vw;
+            height: 12vw;
+            font-size: 5vw;
         }
     </style>
 </head>
@@ -27,6 +34,7 @@
     <script>
         let turn = 'O';
         let canClick = true;
+        let count = 0;
         const rows = [];
         const $table = document.createElement('table');
         const $result = document.createElement('div');
@@ -107,14 +115,15 @@
             let computerPick = unClicked[Math.floor(unClicked.length * Math.random())];
             computerPick.textContent = turn;
             computerPick.classList.add('clicked');
-            // 승부체크. 
-            if (checkWinner(computerPick)) {
-                $result.textContent = `${turn} 승리 !!`;
-                replay();
-                return;
-            };
-            // 턴 넘기기
-            turn = 'O';
+            // 위험방지, 승리잡기.
+        // 승부체크. 
+        if (checkWinner(computerPick)) {
+            $result.textContent = `${turn} 승리 !!`;
+            replay();
+            return;
+        };
+        // 턴 넘기기
+        turn = 'O';
         };
         // 승부가 난 후 다시하기.
         const replay = () => { //다시하기 버튼 만들기
@@ -123,7 +132,7 @@
                 document.body.append($button);
             };
         };
-        $button.addEventListener('click', ()=>{ //다시하기 실행
+        $button.addEventListener('click', () => { //다시하기 실행
             canClick = true;
             turn = 'O';
             $result.textContent = '';
