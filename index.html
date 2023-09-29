@@ -143,7 +143,7 @@
             let acrossCell = [];
             let acrossSum = [];
             acrossLine();
-            function acrossLine() { // 대각선 방어
+            function acrossLine() {
                 acrossCell.push(flatRows[0]);
                 acrossCell.push(flatRows[4]);
                 acrossCell.push(flatRows[8]);
@@ -160,28 +160,53 @@
             }
             attackOrDipense();
             function attackOrDipense() {
-                // 공격 if
-                if (rowSums.includes(2)) { // 가로줄 방어
+                // 공격 
+                if (rowSums.includes(6)) { // 가로줄 공격
+                    const forSave = (rows[rowSums.indexOf(6)]).find((td) => td.id === '0');
+                    forSave.textContent = turn;
+                    forSave.id = '3';
+                    forSave.classList.add('clicked');
+                    $result.textContent = `${turn} 승리 !!`;
+                    replay();
+                    console.log('가로 공격');
+                } else if (lineSums.includes(6)) { // 세로줄 공격
+                    const forSave = (targetCell[lineSums.indexOf(6)]).find((cell) => cell.id === '0');
+                    forSave.textContent = turn;
+                    forSave.id = '3';
+                    forSave.classList.add('clicked');
+                    $result.textContent = `${turn} 승리 !!`;
+                    replay();
+                    console.log('세로 공격');
+                } else if (acrossSum.includes(6)) { // 대각선 공격
+                    const forSave = (acrossRow[acrossSum.indexOf(6)]).find((cell) => cell.id === '0');
+                    forSave.textContent = turn;
+                    forSave.id = '3';
+                    forSave.classList.add('clicked');
+                    $result.textContent = `${turn} 승리 !!`;
+                    replay();
+                    console.log('대각선 공격');
+                } //방어  
+                else if (rowSums.includes(2)) { // 가로줄 방어
                     const forSave = (rows[rowSums.indexOf(2)]).find((td) => td.id === '0');
                     forSave.textContent = turn;
                     forSave.id = '3';
                     forSave.classList.add('clicked');
                     turn = 'O';
-                    console.log('가로');
+                    console.log('가로 방어');
                 } else if (lineSums.includes(2)) { // 세로줄 방어
                     const forSave = (targetCell[lineSums.indexOf(2)]).find((cell) => cell.id === '0');
                     forSave.textContent = turn;
                     forSave.id = '3';
                     forSave.classList.add('clicked');
                     turn = 'O';
-                    console.log('세로');
+                    console.log('세로 방어');
                 } else if (acrossSum.includes(2)) { //대각선 방어
-                    const forSave = (acrossRow[acrossSum.indexOf(2)]).find((cell)=> cell.id === '0');
+                    const forSave = (acrossRow[acrossSum.indexOf(2)]).find((cell) => cell.id === '0');
                     forSave.textContent = turn;
                     forSave.id = '3';
                     forSave.classList.add('clicked');
                     turn = 'O';
-                    console.log('대각선');
+                    console.log('대각선 방어');
                 } else { // 클릭되지 않은 배열에서 무작위로 X 턴 채우기.
                     let unClicked = flatRows.filter((cell) => !cell.classList.contains('clicked'));
                     let computerPick = unClicked[Math.floor(unClicked.length * Math.random())];
