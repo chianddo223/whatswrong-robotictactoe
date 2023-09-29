@@ -32,6 +32,7 @@
 
 <body>
     <script>
+        'use stirct';
         let turn = 'O';
         let canClick = true;
         const rows = [];
@@ -111,11 +112,11 @@
 
         const takeComputerTurn = () => {
             const rowSums = [];
-            canClick = true;
+            const lineSums = [];
             const flatRows = rows.flat();
-            let unClicked = flatRows.filter((cell) => !cell.classList.contains('clicked'));
-            let computerPick = unClicked[Math.floor(unClicked.length * Math.random())];
-            // 공격, 방어.
+            canClick = true;
+
+            // 공격, 방어(컴퓨터 수를 놓기 전 계산).
             for (let i = 0; i < 3; i++) { //가로줄 방어
                 let sum = 0;
                 let rowIndex = rows[i];
@@ -124,28 +125,80 @@
                 };
                 rowSums.push(sum);
             };
+            let targetCell = [];
+            let lineCell = [];
+            for (let i = 0; i < 3; i++) { // 세로줄 방어 (세로로 새로운 배열을 재구성)
+                let sum = 0;
+                lineCell = [];
+                for (let j = 0; j < 3; j++) {
+                    let cellItem = flatRows[(3 * j) + i];
+                    lineCell.push(cellItem);
+                    sum += parseInt(lineCell[j].id);
+                }
+                targetCell.push(lineCell);
+                lineSums.push(sum);
+            }
+
+            let acrossRow = [];
+            let acrossCell = [];
+            let acrossSum = [];
+            acrossLine();
+            function acrossLine() {
+                acrossCell.push(flatRows[0]);
+                acrossCell.push(flatRows[4]);
+                acrossCell.push(flatRows[8]);
+                acrossRow.push(acrossCell);
+                acrossCell = [];
+                acrossCell.push(flatRows[2]);
+                acrossCell.push(flatRows[4]);
+                acrossCell.push(flatRows[6]);
+                acrossRow.push(acrossCell);
+                sum = parseInt(acrossRow[0][0].id) + parseInt(acrossRow[0][1].id) + parseInt(acrossRow[0][2].id)
+                acrossSum.push(sum);
+                sum = parseInt(acrossRow[1][0].id) + parseInt(acrossRow[1][1].id) + parseInt(acrossRow[1][2].id);
+                acrossSum.push(sum);
+            }
             attackOrDipense();
             function attackOrDipense() {
-                if (rowSums.includes(2)) {
+                // 공격 if
+                if (rowSums.includes(2)) { // 가로줄 방어
                     const forSave = (rows[rowSums.indexOf(2)]).find((td) => td.id === '0');
                     forSave.textContent = turn;
                     forSave.id = '3';
                     forSave.classList.add('clicked');
-                    console.log(forSave)
+                    turn = 'O';
+                    console.log('가로');
+                } else if (lineSums.includes(2)) { // 세로줄 방어
+                    const forSave = (targetCell[lineSums.indexOf(2)]).find((cell) => cell.id === '0');
+                    forSave.textContent = turn;
+                    forSave.id = '3';
+                    forSave.classList.add('clicked');
+                    turn = 'O';
+                    console.log('세로');
+                } else if (acrossSum.includes(2)) { //대각선 방어
+                    const forSave = (acrossRow[acrossSum.indexOf(2)]).find((cell)=> cell.id === '0');
+                    forSave.textContent = turn;
+                    forSave.id = '3';
+                    forSave.classList.add('clicked');
+                    turn = 'O';
+                    console.log('대각선');
                 } else { // 클릭되지 않은 배열에서 무작위로 X 턴 채우기.
+                    let unClicked = flatRows.filter((cell) => !cell.classList.contains('clicked'));
+                    let computerPick = unClicked[Math.floor(unClicked.length * Math.random())];
                     computerPick.textContent = turn;
                     computerPick.classList.add('clicked');
                     computerPick.id = '3';
+                    // 승부체크. 
+                    if (checkWinner(computerPick)) {
+                        $result.textContent = `${turn} 승리 !!`;
+                        replay();
+                        return;
+                    };
+                    // 턴 넘기기
+                    turn = 'O';
                 };
             };
-            // 승부체크. 
-            if (checkWinner(computerPick)) {
-                $result.textContent = `${turn} 승리 !!`;
-                replay();
-                return;
-            };
-            // 턴 넘기기
-            turn = 'O';
+
         };
 
         // 승부가 난 후 다시하기.
@@ -163,6 +216,7 @@
             rows.flat().forEach(element => {
                 element.textContent = '';
                 element.className = '';
+                element.id = '0';
             });
         });
         document.body.append($table);
